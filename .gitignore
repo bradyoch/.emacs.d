@@ -1,0 +1,15 @@
+*.elc
+config.el
+auto-save-list/
+elpa/
+custom.el
+transient/
+eshell/
+tramp
+projectile*
+anaconda*
+bookmarks
+/.lsp-session-v1
+/recentf
+*~
+local.el
