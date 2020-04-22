@@ -14,6 +14,7 @@
 ;;----------------------------------------------------------------------------
 ;; Adjust garbage collection thresholds during startup, and thereafter
 ;;----------------------------------------------------------------------------
+
 (let ((normal-gc-cons-threshold (* 20 1024 1024))
       (init-gc-cons-threshold (* 128 1024 1024)))
   (setq gc-cons-threshold init-gc-cons-threshold)
@@ -37,6 +38,57 @@
 (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 
 (when (fboundp 'fringe-mode) (fringe-mode '(0 . 0)))
+
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
+(global-hl-line-mode 1)
+
+(setq ring-bell-function 'ignore)
+
+(load-theme 'misterioso 't)
+
+;;----------------------------------------------------------------------------
+;; Default Behavior Tweaks
+;;----------------------------------------------------------------------------
+
+(setq backup-inhibited 't
+      auto-save-default 'nil)
+
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+;;----------------------------------------------------------------------------
+;; Packages
+;;----------------------------------------------------------------------------
+
+(require 'package)
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+			 ("melpa" . "https://melpa.org/packages/")))
+(package-initialize)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
+
+;;----------------------------------------------------------------------------
+;; Python Configs
+;;----------------------------------------------------------------------------
+
+(use-package pyvenv
+  :ensure t)
+
+;;----------------------------------------------------------------------------
+;; Keybindings
+;;----------------------------------------------------------------------------
+
+(global-unset-key (kbd "C-z"))
+
+(global-set-key (kbd "C-o") 'other-window)
 
 (provide 'init)
 ;;; init.el ends here
