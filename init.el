@@ -58,6 +58,9 @@
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
+(setq-default indent-tabs-mode 'nil
+              tab-width 2)
+
 ;;----------------------------------------------------------------------------
 ;; Packages
 ;;----------------------------------------------------------------------------
@@ -75,12 +78,18 @@
   :ensure t
   :bind (("C-x g" . magit-status)))
 
+(use-package which-key
+  :ensure t
+  :init (which-key-mode))
+
 ;;----------------------------------------------------------------------------
 ;; Python Configs
 ;;----------------------------------------------------------------------------
 
 (use-package pyvenv
   :ensure t)
+
+(add-hook 'python-mode 'flymake-mode-on)
 
 ;;----------------------------------------------------------------------------
 ;; Keybindings
@@ -89,6 +98,8 @@
 (global-unset-key (kbd "C-z"))
 
 (global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "C-c p f") 'project-find-file)
+(global-set-key (kbd "C-c p s") 'project-find-regexp)
 
 (provide 'init)
 ;;; init.el ends here
