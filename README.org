@@ -160,9 +160,26 @@ prog-mode and text-mode buffers.
   (add-hook 'before-save-hook #'brady/cleanup-whitespace)
 #+end_src
 
+By default, Emacs will either ring a "bell" on the computer when it has a
+warning for you or it will flash. However, I prefer a quiet programming
+experience so I turn both of those off.
+
+#+begin_src emacs-lisp
+  (setq ring-bell-function 'ignore)
+#+end_src
+
 * Languages
 
 ** Python
+
+I use python primarily at work, but the built-in functionality is pretty good,
+so I'll just add the ability to work on different virtual environments.
+
+#+begin_src emacs-lisp
+  (use-package pyvenv
+    :ensure t)
+#+end_src
+
 ** Typescript
 
 I use typescript occasionally when I need to do a bit of web development, so I
@@ -170,7 +187,9 @@ don't need anything fancy, just some good highlighting.
 
 #+begin_src emacs-lisp
   (use-package typescript-mode
-    :ensure t)
+    :ensure t
+    :config
+    (setq-default typescript-indent-level 2))
 #+end_src
 
 * Package Configuration
