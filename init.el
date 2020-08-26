@@ -1,105 +1,24 @@
-;;; init.el --- Brady's emacs config -*- lexical-binding: t -*-
+;;; init.el --- Brady's emacs init -*- lexical-binding: t -*-
 ;;; Commentary:
 
-;; This file contains most of the configuration options for Emacs,
-;; loading other modules as needed for organization.
-
-;; This file is largely inspired by Steve Purcell's config located
-;; here: https://github.com/purcell/emacs.d/blob/master/init.el
+;; This file contains the code required to tangle and load my literate
+;; config from README.org
 
 ;;; Code:
 
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(defun brady/tangle-load-config (&optional arg)
+  """Tangle and load the config from README.org. By default, this
+  function will only re-tangle the file if the current org file
+  is newer than the existing elisp file. If given a prefix
+  argument, it will always re-tangle."""
+  (interactive "P")
+  (let ((org-file (expand-file-name "README.org" user-emacs-directory))
+	(el-file (expand-file-name "config.el" user-emacs-directory)))
+    (when (or (file-newer-than-file-p org-file el-file) arg)
+      (org-babel-tangle-file org-file el-file))
+    (load-file el-file)))
 
-;;----------------------------------------------------------------------------
-;; Adjust garbage collection thresholds during startup, and thereafter
-;;----------------------------------------------------------------------------
-
-(let ((normal-gc-cons-threshold (* 20 1024 1024))
-      (init-gc-cons-threshold (* 128 1024 1024)))
-  (setq gc-cons-threshold init-gc-cons-threshold)
-  (add-hook 'emacs-startup-hook
-            (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
-
-;;----------------------------------------------------------------------------
-;; Utility Functions
-;;----------------------------------------------------------------------------
-
-(defun brady/update-load-config ()
-  (interactive)
-  (load-file (expand-file-name "init.el" user-emacs-directory)))
-
-;;----------------------------------------------------------------------------
-;; UI Tweaks
-;;----------------------------------------------------------------------------
-
-(when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-
-(when (fboundp 'fringe-mode) (fringe-mode '(0 . 0)))
-
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-
-(global-hl-line-mode 1)
-
-(setq ring-bell-function 'ignore)
-
-(load-theme 'misterioso 't)
-
-;;----------------------------------------------------------------------------
-;; Default Behavior Tweaks
-;;----------------------------------------------------------------------------
-
-(setq backup-inhibited 't
-      auto-save-default 'nil)
-
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-
-(setq-default indent-tabs-mode 'nil
-              tab-width 2)
-
-;;----------------------------------------------------------------------------
-;; Packages
-;;----------------------------------------------------------------------------
-
-(require 'package)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")))
-(package-initialize)
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(use-package magit
-  :ensure t
-  :bind (("C-x g" . magit-status)))
-
-(use-package which-key
-  :ensure t
-  :init (which-key-mode))
-
-;;----------------------------------------------------------------------------
-;; Python Configs
-;;----------------------------------------------------------------------------
-
-(use-package pyvenv
-  :ensure t)
-
-(add-hook 'python-mode 'flymake-mode-on)
-
-;;----------------------------------------------------------------------------
-;; Keybindings
-;;----------------------------------------------------------------------------
-
-(global-unset-key (kbd "C-z"))
-
-(global-set-key (kbd "C-o") 'other-window)
-(global-set-key (kbd "C-c p f") 'project-find-file)
-(global-set-key (kbd "C-c p s") 'project-find-regexp)
-
+(require 'org)
+(brady/tangle-load-config)
 (provide 'init)
 ;;; init.el ends here

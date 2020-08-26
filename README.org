@@ -1,0 +1,237 @@
+#+TITLE: Brady's Literate Config
+#+AUTHOR: Brady Ochse
+
+This file is a literate program (using the org-mode package) containing all the
+customizations for my Emacs. On startup, each of the code blocks below are
+extracted (tangled) and ran in order. This document is meant to combine the code
+with the explanation for the code, allowing my configuration to grow and change
+while staying managable and easily understood.
+
+* Introduction
+
+Give Emacs information about myself. This will be used by various functions and
+email, if I ever set that up.
+
+#+begin_src emacs-lisp
+  (setq user-full-name "Brady Ochse"
+        user-mail-address "bradyoch@gmail.com")
+#+end_src
+
+* Package Setup
+
+Because every other section depends on use-package for configuration, we need to
+set up the package system first. We just need to add MELPA to the list of
+repositories, this will give access to many more packages that aren't available
+in GNU's ELPA repository.
+
+#+begin_src emacs-lisp
+  (require 'package)
+  (setq package-archives
+        '(("gnu" . "https://elpa.gnu.org/packages/")
+          ("melpa" . "https://melpa.org/packages/")))
+#+end_src
+
+We install use-package which will be used for configuration of other
+packages throughout the configuration.
+
+#+begin_src emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package)
+#+end_src
+
+From this point onward, all packages, internal and external, will be
+loaded with ~use-package~ which provides a declarative macro for
+loading (and defering) packages. External packages will be indicated
+with ~:ensure t~, meaning they will come from an external source,
+usually MELPA or ELPA.
+
+* Display Settings
+
+In order to reduce the amount of flashing from the Emacs GUI while it's loading
+the config, I make all graphical tweaks up as early as possible in the
+configuration.
+
+First let's set up the default frame alist. This contains the configuration
+information that each new frame defaults to. This is done first to avoid
+overwritting any other values that may be set up later.
+
+#+begin_src emacs-lisp
+  (setq default-frame-alist
+        '((internal-frame-width . 22)))
+#+end_src
+
+Next remove the unneeded graphical elements from the screen. We can do this
+using the default frame alist, but it's easier and more understandable to use a
+mode switches.
+
+#+begin_src emacs-lisp
+  (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+  (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+  (when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+#+end_src
+
+Show line numbers on buffers that inherit from prog-mode or text-mode
+for easy reference.
+
+#+begin_src emacs-lisp
+  (use-package display-line-numbers
+    :hook ((prog-mode text-mode) . display-line-numbers-mode))
+#+end_src
+
+Show which line we're currently on for easy identification.
+
+#+begin_src emacs-lisp
+  (use-package hl-line
+    :init (global-hl-line-mode 1))
+#+end_src
+
+Set up a good font. Ligatures would be really cool in the future, but
+I haven't had a chance to set that up.
+
+#+begin_src emacs-lisp
+  (set-frame-font (font-spec :name "Noto Sans Mono"
+                             :size 13)
+                  't 't)
+#+end_src
+
+Use a good theme.
+
+#+begin_src emacs-lisp
+  (use-package modus-vivendi-theme
+    :ensure t
+    :init (load-theme 'modus-vivendi 't))
+#+end_src
+
+* Better Defaults
+
+There are a number of Emacs defaults that are less than ideal, this section is
+meant to address all those.
+
+Custom is a package designed to provide a better UI for making changes to Emacs
+settings. I typically don't use custom very much, but I do like having the
+variables it sets available. This creates a =custom.el= file which the custom
+package writes all configuration to. It also makes sure to load this file
+whenever the package in initialized.
+
+#+begin_src emacs-lisp
+  (use-package custom
+    :config
+    (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+    (unless (file-exists-p custom-file)
+      (make-empty-file custom-file))
+    (load-file custom-file))
+#+end_src
+
+While we're on the topic of files. Backup files, autosave files, and lock files
+cause more problems than they fix, at least as they are. In order to make them
+less obtrusive, we'll move the backup files to a separate folder and remove the
+autosave and lock files.
+
+#+begin_src emacs-lisp
+  (setq-default auto-save-default 'nil
+                make-backup-files 'nil
+                create-lockfiles 'nil)
+#+end_src
+
+Tabulation is left mainly to the major modes; however, we want to create some
+managable defaults. This will disable the use of tabs and set the default tab
+width to 2.
+
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode 'nil
+                tab-width 2)
+#+end_src
+
+Trailing whitespace, both lines at the end of the file and spaces at the end of
+lines is annoying and it makes diffs worse. Clean up all that automatically for
+prog-mode and text-mode buffers.
+
+#+begin_src emacs-lisp
+  (setq-default delete-trailing-lines 't
+                require-final-newline 't)
+
+  (defun brady/cleanup-whitespace ()
+    """Cleanup all whitespace in a file."""
+    (interactive)
+    (delete-trailing-whitespace))
+
+  (add-hook 'before-save-hook #'brady/cleanup-whitespace)
+#+end_src
+
+* Languages
+
+** Python
+** Typescript
+
+I use typescript occasionally when I need to do a bit of web development, so I
+don't need anything fancy, just some good highlighting.
+
+#+begin_src emacs-lisp
+  (use-package typescript-mode
+    :ensure t)
+#+end_src
+
+* Package Configuration
+
+This section contains configuration for the various packages, both internal and
+external, that I use.
+
+** Magit
+
+Magit is the best git interface. I use it pretty much default, so I'll just add
+a keybinding to start it (C-x g).
+
+#+begin_src emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind ("C-x g" . magit))
+#+end_src
+
+** Ido Mode
+
+There are a lot of completion engines out there, but Ido is built into Emacs. I
+try to prefer built-in packages over external ones for no real reason, but Ido
+works for the things I need it.
+
+#+begin_src emacs-lisp
+  (use-package ido
+    :config (ido-mode 1))
+#+end_src
+
+** Project.el
+
+Project.el is a project management solution built into Emacs. It doesn't provide
+quite as much functionality as Projectile, but it does allow for searching a
+project for files.
+
+#+begin_src emacs-lisp
+  (use-package project
+    :bind (("C-c p f" . project-find-file)
+           ("C-c p s" . project-find-regexp)))
+#+end_src
+
+* Org Mode
+
+This section contains configuration for Emacs Org mode, which is an extrememly
+deep package that I currently only touch the surface of. This file is written in
+org mode!
+
+First let's set up org mode with a number of configuration items.
+
+#+begin_src emacs-lisp
+  (use-package org)
+#+end_src
+
+Add a convenience snippets for inserting snippets in other languages for use
+with org-babel-tangle. As of emacs 27, the included org mode uses org-tempo in
+order to expand templates in a similar style to the previous template syntax.
+
+#+begin_src emacs-lisp
+  (use-package org-tempo
+    :after org
+    :config
+    (add-to-list 'org-structure-template-alist
+                 '("el" . "src emacs-lisp")))
+#+end_src
