@@ -87,13 +87,21 @@ Show which line we're currently on for easy identification.
     :init (global-hl-line-mode 1))
 #+end_src
 
-Set up a good font. Ligatures would be really cool in the future, but
-I haven't had a chance to set that up.
+Set up a good font. Ligatures would be really cool in the future, but I haven't
+had a chance to set that up.
 
 #+begin_src emacs-lisp
   (set-frame-font (font-spec :name "Noto Sans Mono"
                              :size 13)
                   't 't)
+#+end_src
+
+The default buffer in Emacs is very helpful, but after seeing it a thousand
+times, it can get a little old. Instead, open Emacs to an empty scratch buffer.
+
+#+begin_src emacs-lisp
+  (setq inhibit-startup-screen 't
+        initial-scratch-message "")
 #+end_src
 
 Use a good theme.
@@ -168,6 +176,24 @@ experience so I turn both of those off.
   (setq ring-bell-function 'ignore)
 #+end_src
 
+It's often really nice to navigate based on camelCased words. This is especially
+useful for programming where the style may use a lot of words like
+that. Fortunately, Emacs has a mode for that. Subword mode allows for navigation
+based on camelCased words. We'll enable that globally.
+
+#+begin_src emacs-lisp
+  (use-package subword
+    :config (global-subword-mode 't))
+#+end_src
+
+Bump up the garbage collection threshold to prevent thrashing (probably not what
+that's called in the context of gc) with larger processes such as LSP, (see
+Eglot.)
+
+#+begin_src emacs-lisp
+  (setq gc-cons-threshold (* 20 1024 1024))
+#+end_src
+
 * Languages
 
 ** Python
@@ -229,6 +255,59 @@ project for files.
   (use-package project
     :bind (("C-c p f" . project-find-file)
            ("C-c p s" . project-find-regexp)))
+#+end_src
+
+** Company
+
+Company mode is the defacto standard for completion for Emacs. It integrates
+well with a number of other packages including Eglot which we will get to next.
+
+#+begin_src emacs-lisp
+  (use-package company
+    :ensure t
+    :hook (after-init . global-company-mode)
+    :config
+    (setq tab-always-indent 'complete))
+#+end_src
+
+** Eglot
+
+Eglot is a lightweight language server client for Emacs that tries to use as
+many built-in features as possible while still providing a modern IDE
+feel. Further, increase the read process output max, in order to accomidate the
+larger payloads sent by some language servers.
+
+Note: the change to the gc-cons-threshold in Better Defaults is primarily meant
+to better support language servers as well.
+
+#+begin_src emacs-lisp
+  (use-package eglot
+    :ensure t
+    :config
+    (setq read-process-output-max (* 1024 1024)))
+#+end_src
+
+** Avy Jump
+
+Avy allows for me to jump to words anywhere on the screen with a couple of key
+presses.
+
+#+begin_src emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind ("C-z" . avy-goto-word-or-subword-1))
+#+end_src
+
+* Keybindings
+
+This section has miscellaneous keybindings that aren't specifically related to
+any one major mode.
+
+By default, Emacs will suspend if you press C-z. I've never once wanted to do
+this, so I disable it to make way for more keybindings based on that key.
+
+#+begin_src emacs-lisp
+  (global-unset-key (kbd "C-z"))
 #+end_src
 
 * Org Mode
