@@ -191,7 +191,7 @@ that's called in the context of gc) with larger processes such as LSP, (see
 Eglot.)
 
 #+begin_src emacs-lisp
-  (setq gc-cons-threshold (* 20 1024 1024))
+  (setq gc-cons-threshold (* 50 1024 1024))
 #+end_src
 
 * Languages
@@ -208,14 +208,15 @@ so I'll just add the ability to work on different virtual environments.
 
 ** Typescript
 
-I use typescript occasionally when I need to do a bit of web development, so I
-don't need anything fancy, just some good highlighting.
+I use typescript pretty regularly at work and on personal projects that involve
+web development. For that reason, we set up some more sophisticated language
+features.
 
 #+begin_src emacs-lisp
-  (use-package typescript-mode
-    :ensure t
-    :config
-    (setq-default typescript-indent-level 2))
+    (use-package typescript-mode
+      :ensure t
+      :config
+      (setq-default typescript-indent-level 2))
 #+end_src
 
 * Package Configuration
@@ -295,7 +296,31 @@ presses.
 #+begin_src emacs-lisp
   (use-package avy
     :ensure t
-    :bind ("C-z" . avy-goto-word-or-subword-1))
+    :bind ("M-SPC" . avy-goto-word-or-subword-1))
+#+end_src
+
+** Reformatter
+
+Reformatter sets up minor modes for formatting on save using a custom command
+for a language.
+
+#+begin_src emacs-lisp
+  (use-package reformatter
+    :ensure t
+    :config
+
+    (reformatter-define python-black
+      :program "black"
+      :args '("-")))
+#+end_src
+
+** Restclient.el
+
+Restclient is a package to query HTTP APIs.
+
+#+begin_src emacs-lisp
+  (use-package restclient
+    :ensure t)
 #+end_src
 
 * Keybindings
