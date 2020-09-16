@@ -323,6 +323,19 @@ Restclient is a package to query HTTP APIs.
     :ensure t)
 #+end_src
 
+** Docker
+
+Setup docker mode which allows for TRAMP access to the containers as well as
+highlighting for dockerfiles
+
+#+begin_src emacs-lisp
+  (use-package docker
+    :ensure t)
+
+  (use-package dockerfile-mode
+    :ensure t)
+#+end_src
+
 * Keybindings
 
 This section has miscellaneous keybindings that aren't specifically related to
