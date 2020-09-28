@@ -1,3 +1,4 @@
+# -*- fill-column: 80; -*-
 #+TITLE: Brady's Literate Config
 #+AUTHOR: Brady Ochse
 
@@ -59,7 +60,7 @@ overwritting any other values that may be set up later.
 
 #+begin_src emacs-lisp
   (setq default-frame-alist
-        '((internal-frame-width . 22)))
+        '((internal-border-width . 22)))
 #+end_src
 
 Next remove the unneeded graphical elements from the screen. We can do this
@@ -336,6 +337,16 @@ highlighting for dockerfiles
     :ensure t)
 #+end_src
 
+** Flymake
+
+Flymake is a built in linter and code checker. I'm experimenting with it over
+flycheck because there has been a lot of development around flymake recently.
+
+#+begin_src emacs-lisp
+  (use-package flymake
+    :hook ((python-mode . flymake-mode)))
+#+end_src
+
 * Keybindings
 
 This section has miscellaneous keybindings that aren't specifically related to
@@ -357,7 +368,8 @@ org mode!
 First let's set up org mode with a number of configuration items.
 
 #+begin_src emacs-lisp
-  (use-package org)
+  (use-package org
+    :hook (org-mode . auto-fill-mode))
 #+end_src
 
 Add a convenience snippets for inserting snippets in other languages for use
