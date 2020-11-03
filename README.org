@@ -184,6 +184,7 @@ based on camelCased words. We'll enable that globally.
 
 #+begin_src emacs-lisp
   (use-package subword
+    :if nil
     :config (global-subword-mode 't))
 #+end_src
 
@@ -192,7 +193,8 @@ that's called in the context of gc) with larger processes such as LSP, (see
 Eglot.)
 
 #+begin_src emacs-lisp
-  (setq gc-cons-threshold (* 50 1024 1024))
+  (setq gc-cons-threshold (* 50 1024 1024)
+        read-process-output-max (* 1024 1024))
 #+end_src
 
 * Languages
@@ -276,17 +278,11 @@ well with a number of other packages including Eglot which we will get to next.
 
 Eglot is a lightweight language server client for Emacs that tries to use as
 many built-in features as possible while still providing a modern IDE
-feel. Further, increase the read process output max, in order to accomidate the
-larger payloads sent by some language servers.
-
-Note: the change to the gc-cons-threshold in Better Defaults is primarily meant
-to better support language servers as well.
+feel.
 
 #+begin_src emacs-lisp
   (use-package eglot
-    :ensure t
-    :config
-    (setq read-process-output-max (* 1024 1024)))
+    :ensure t)
 #+end_src
 
 ** Avy Jump
@@ -345,6 +341,37 @@ flycheck because there has been a lot of development around flymake recently.
 #+begin_src emacs-lisp
   (use-package flymake
     :hook ((python-mode . flymake-mode)))
+#+end_src
+
+** Which Key
+
+Which key displays possible continuations of partial key chord. It allows for
+much more discoverable keybindings.
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init (which-key-mode))
+#+end_src
+
+** Electric Pairs
+
+Electric pairs mode automatically closes pairs (eg. typing "(" would insert
+"()")
+
+#+begin_src emacs-lisp
+  (use-package elec-pair
+    :init (electric-pair-mode 't))
+
+#+end_src
+
+** Show Parens
+
+Highlight the current bracket's matching pair.
+
+#+begin_src emacs-lisp
+  (use-package paren
+    :init (show-paren-mode 't))
 #+end_src
 
 * Keybindings
