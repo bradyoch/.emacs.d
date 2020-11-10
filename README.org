@@ -63,6 +63,14 @@ overwritting any other values that may be set up later.
         '((internal-border-width . 22)))
 #+end_src
 
+Allow for pixel-wise resizing of the frame. This prevents Emacs from rounding
+it's display to the nearest full character which leads to black edges and/or
+empty space around the window.
+
+#+begin_src emacs-lisp
+  (setq frame-resize-pixelwise 't)
+#+end_src
+
 Next remove the unneeded graphical elements from the screen. We can do this
 using the default frame alist, but it's easier and more understandable to use a
 mode switches.
