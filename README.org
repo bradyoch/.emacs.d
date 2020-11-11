@@ -60,7 +60,8 @@ overwritting any other values that may be set up later.
 
 #+begin_src emacs-lisp
   (setq default-frame-alist
-        '((internal-border-width . 22)))
+        '((internal-frame-width . 22)
+          (font . "Noto Sans Mono-10")))
 #+end_src
 
 Allow for pixel-wise resizing of the frame. This prevents Emacs from rounding
@@ -94,15 +95,6 @@ Show which line we're currently on for easy identification.
 #+begin_src emacs-lisp
   (use-package hl-line
     :init (global-hl-line-mode 1))
-#+end_src
-
-Set up a good font. Ligatures would be really cool in the future, but I haven't
-had a chance to set that up.
-
-#+begin_src emacs-lisp
-  (set-frame-font (font-spec :name "Noto Sans Mono"
-                             :size 13)
-                  't 't)
 #+end_src
 
 The default buffer in Emacs is very helpful, but after seeing it a thousand
@@ -253,8 +245,10 @@ try to prefer built-in packages over external ones for no real reason, but Ido
 works for the things I need it.
 
 #+begin_src emacs-lisp
-  (use-package ido
-    :config (ido-mode 1))
+    (use-package ido
+      :config
+      (ido-mode 1)
+      (setq ido-auto-merge-work-directories-length -1))
 #+end_src
 
 ** Project.el
