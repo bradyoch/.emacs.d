@@ -113,6 +113,26 @@ Use a good theme.
     :init (load-theme 'modus-vivendi 't))
 #+end_src
 
+Better unicode support. Thanks to [[http://ergoemacs.org/emacs/emacs_list_and_set_font.html][Xah Lee for this snippet]].
+
+#+begin_src emacs-lisp
+  ;; set font for emoji
+  (set-fontset-font
+   t
+   '(#x1f300 . #x1fad0)
+   (cond
+    ((member "Noto Color Emoji" (font-family-list)) "Noto Color Emoji")
+    ((member "Noto Emoji" (font-family-list)) "Noto Emoji")
+    ((member "Segoe UI Emoji" (font-family-list)) "Segoe UI Emoji")
+    ((member "Symbola" (font-family-list)) "Symbola")
+    ((member "Apple Color Emoji" (font-family-list)) "Apple Color Emoji"))
+   ;; Apple Color Emoji should be before Symbola, but Richard Stallman disabled it.
+   ;; GNU Emacs Removes Color Emoji Support on the Mac
+   ;; http://ergoemacs.org/misc/emacs_macos_emoji.html
+   ;;
+   )
+#+end_src
+
 * Better Defaults
 
 There are a number of Emacs defaults that are less than ideal, this section is
@@ -411,4 +431,25 @@ order to expand templates in a similar style to the previous template syntax.
     :config
     (add-to-list 'org-structure-template-alist
                  '("el" . "src emacs-lisp")))
+#+end_src
+* Misc
+
+This section is for miscellaneous functions that I'm testing before moving them
+into a proper section.
+
+** EWW
+
+Enter a new url in eww based on the current url.
+
+#+begin_src emacs-lisp
+  (defun brady/eww-edit-url ()
+    (interactive)
+    (eww-browse-url (read-string "Enter url: " (eww-current-url))))
+#+end_src
+
+Allow mouse-key-based forward/backward url navigation.
+
+#+begin_src emacs-lisp
+  (define-key eww-mode-map (kbd "<mouse-8>") 'eww-back-url)
+  (define-key eww-mode-map (kbd "<mouse-9>") 'eww-forward-url)
 #+end_src
