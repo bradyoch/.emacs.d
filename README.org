@@ -61,7 +61,7 @@ overwritting any other values that may be set up later.
 #+begin_src emacs-lisp
   (setq default-frame-alist
         '((internal-frame-width . 22)
-          (font . "Noto Sans Mono-10")))
+          (font . "Fira Code-9")))
 #+end_src
 
 Allow for pixel-wise resizing of the frame. This prevents Emacs from rounding
@@ -217,6 +217,14 @@ Eglot.)
         read-process-output-max (* 1024 1024))
 #+end_src
 
+Always start a new async shell buffer when running a new async shell
+command. I mostly prefer this because it allows me to run potentially many async
+shell commands concurrently without having to confirm each one.
+
+#+begin_src emacs-lisp
+  (setq async-shell-command-buffer 'new-buffer)
+#+end_src
+
 * Languages
 
 ** Python
@@ -258,6 +266,30 @@ a keybinding to start it (C-x g).
     :bind ("C-x g" . magit))
 #+end_src
 
+** Evil
+
+Having used both Emacs default keybindings (which I don't dislike) and Vim
+keybindings, I find Vim keybindings much more pleasant to use when editing
+text. I do prefer Emacs' corded keybindings for handinging things outside of
+text editing. That being said, I think Doom's space-based leader key is pretty
+fantastic so I might see if I can implement something like that later.
+
+#+begin_src emacs-lisp
+  (use-package evil
+    :ensure t
+    :init
+    (setq evil-want-integration 't
+          evil-want-keybinding 'nil)
+    :config
+    (evil-mode 1))
+
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :config
+    (evil-collection-init))
+#+end_src
+
 ** Ido Mode
 
 There are a lot of completion engines out there, but Ido is built into Emacs. I
@@ -265,10 +297,11 @@ try to prefer built-in packages over external ones for no real reason, but Ido
 works for the things I need it.
 
 #+begin_src emacs-lisp
-    (use-package ido
-      :config
-      (ido-mode 1)
-      (setq ido-auto-merge-work-directories-length -1))
+  (use-package idoc
+    :if nil
+    :config
+    (ido-mode 1)
+    (setq ido-auto-merge-work-directories-length -1))
 #+end_src
 
 ** Project.el
@@ -279,8 +312,9 @@ project for files.
 
 #+begin_src emacs-lisp
   (use-package project
-    :bind (("C-c p f" . project-find-file)
-           ("C-c p s" . project-find-regexp)))
+    :bind (:map evil-normal-state-map
+                ("SPC p f" . project-find-file)
+                ("SPC p g" . project-find-regexp)))
 #+end_src
 
 ** Company
@@ -396,6 +430,17 @@ Highlight the current bracket's matching pair.
     :init (show-paren-mode 't))
 #+end_src
 
+** Expand Region
+
+This package allows for successively larger semantic units to be selected with
+ease.
+
+#+begin_src emacs-lisp
+  (use-package expand-region
+    :ensure t
+    :bind (("C-=" . er/expand-region)))
+#+end_src
+
 * Keybindings
 
 This section has miscellaneous keybindings that aren't specifically related to
@@ -437,6 +482,17 @@ order to expand templates in a similar style to the previous template syntax.
 This section is for miscellaneous functions that I'm testing before moving them
 into a proper section.
 
+** Selectrum
+
+Try out selectrum for better completing-read support.
+
+#+begin_src emacs-lisp
+  (use-package selectrum
+    :ensure t
+    :if nil
+    :init (selectrum-mode))
+#+end_src
+
 ** EWW
 
 Enter a new url in eww based on the current url.
@@ -450,6 +506,29 @@ Enter a new url in eww based on the current url.
 Allow mouse-key-based forward/backward url navigation.
 
 #+begin_src emacs-lisp
-  (define-key eww-mode-map (kbd "<mouse-8>") 'eww-back-url)
-  (define-key eww-mode-map (kbd "<mouse-9>") 'eww-forward-url)
+  (use-package eww
+    :bind
+    (:map eww-mode-map
+          ("[mouse-8]" . eww-backward-url)
+          ("[mouse-9]" . eww-forward-url)))
+#+end_src
+** EMMS
+
+Testing EMMS as a media player.
+
+#+begin_src emacs-lisp
+  (use-package emms
+    :ensure t
+    :custom
+    (emms-playing-time-display-short-p 't)
+    (emms-playlist-default-major-mode 'emms-mark-mode)
+    :init (emms-all)
+    :config
+    (require 'emms-player-mpv)
+    (setq emms-player-list '(emms-player-mpv))
+
+    (defun emms-player-mpv-set-playback-speed (speed)
+      "Change mpv playback speed."
+      (interactive "nPlayback Speed: ")
+      (emms-player-mpv-cmd `(set_property speed ,speed))))
 #+end_src
