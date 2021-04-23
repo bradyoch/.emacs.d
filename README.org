@@ -236,6 +236,21 @@ buffer.
 				initial-scratch-message "")
 #+end_src
 
+** Misc
+
+A section for other tweaks that aren't large enough for their own
+discussion.
+
+*** Completion
+
+Emacs has pretty good completion built-in. I have used company in the
+past for a more modern completion framework, but I'm trying the
+defaults for now. The only tweak I've made so far is to set
+~tab-always-indent~ to ~'complete~ which triggers completion if the
+current line is already indented.
+
+#+begin_src emacs-lisp
+	(setq tab-always-indent 'complete)
 #+end_src
 
 * Packages
