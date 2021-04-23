@@ -313,6 +313,18 @@ have it enabled for programming buffers.
     :hook (prog-mode . display-line-numbers-mode))
 #+end_src
 
+** VTerm
+
+There are a number of great shells in Emacs. Eshell is personally my
+favorite of them, but sometimes you need to run a program that doesn't
+behave well with any of the built-in shells and you need a full
+shell. VTerm is that for Emacs.
+
+#+begin_src emacs-lisp
+	(use-package vterm
+		:straight t)
+#+end_src
+
 * Languages
 
 This section contains all the configuration for programming languages
