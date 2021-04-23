@@ -288,8 +288,10 @@ built-in functionality of Emacs. lsp-mode generally has slightly more
 features, but I've been happy with Eglot.
 
 #+begin_src emacs-lisp
-  (use-package eglot
-    :straight t)
+	(use-package eglot
+		:straight t
+		:config
+		(setq eglot-confirm-server-initiated-edits 'nil))
 #+end_src
 
 ** Highlight Line
