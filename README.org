@@ -259,6 +259,16 @@ This section contains packages that are not associated with a single
 programming language. For programming language specific packages, see
 the Languages section of this config.
 
+** Modus Vivendi
+
+Modus vivendi is the dark mode version of the modus themes.
+
+#+begin_src emacs-lisp
+	(use-package modus-vivendi-theme
+		:straight t
+		:init (load-theme 'modus-vivendi 't))
+#+end_src
+
 ** Magit
 
 Magit is a fantastic interface to all things git.
