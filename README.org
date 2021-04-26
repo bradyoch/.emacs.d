@@ -219,6 +219,14 @@ Prevent all types of bell ringing on error.
   (setq ring-bell-function 'ignore)
 #+end_src
 
+** Scrolling
+
+Tweaks to make Emacs scrolling work a little better.
+
+#+begin_src emacs-lisp
+	(setq scroll-conservatively 1000)
+#+end_src
+
 ** Memory thresholds
 
 Increase the maximum garbage collection threshold to prevent the UI
