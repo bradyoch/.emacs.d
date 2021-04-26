@@ -25,9 +25,9 @@ The first is to define a global variable that identifies this
 file. We'll use this in other functions to refer to this file.
 
 #+begin_src emacs-lisp
-	(defvar user-literate-config
-		(expand-file-name "README.org" user-emacs-directory)
-		"Location of the user's literate config file.")
+  (defvar user-literate-config
+    (expand-file-name "README.org" user-emacs-directory)
+    "Location of the user's literate config file.")
 #+end_src
 
 Next we'll set up the code to 'tangle' this configuration. In the
@@ -48,6 +48,11 @@ restart. I've seen a couple ways of doing this; however, the way that
 I'm using (for now at least) is to defer automatic updates to just
 before shutting down. This ensures that everything is ready when I
 startup Emacs again and I keep my startup scripts fast on boot.
+
+There is one issue I've had with this where if I shut down the
+computer with an active Emacs session, it may only partially tangle
+the file before the process is killed. This isn't an issue too often
+so I'm still happy with the solution, but it's worth noting.
 
 To do this, we first write a function that runs ~brady/tangle-config~
 only when my literate config file is newer than the init file. This
@@ -334,6 +339,18 @@ shell. VTerm is that for Emacs.
 
 #+begin_src emacs-lisp
 	(use-package vterm
+		:straight t)
+#+end_src
+
+** MPV.el
+
+MPV is a fantastic open source media player. I often use it to watch
+streams, videos, and other media through it's youtube-dl
+integration. This package makes it possible to interact with MPV
+through Emacs.
+
+#+begin_src emacs-lisp
+	(use-package mpv
 		:straight t)
 #+end_src
 
