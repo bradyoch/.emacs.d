@@ -5,10 +5,10 @@
 
 This file uses org-mode to create a literate configuration for
 Emacs. The idea behind literate files is to allow a mix of both text
-and code. In a way, it flips the traditional code file structure focus
-primarily on text with code mixed in. It allows the author of the file
-to discuss the purpose and thought process behind the code in a more
-natural way.
+and code. In a way, it flips the traditional code file structure and
+focuses primarily on text with code mixed in. It allows the author of
+the file to discuss the purpose and thought process behind the code in
+a more natural way.
 
 To that end, this file describes all the configuration and tweaks that
 I have made to Emacs while using it.
@@ -25,9 +25,9 @@ The first is to define a global variable that identifies this
 file. We'll use this in other functions to refer to this file.
 
 #+begin_src emacs-lisp
-  (defvar user-literate-config
-    (expand-file-name "README.org" user-emacs-directory)
-    "Location of the user's literate config file.")
+	(defvar user-literate-config
+		(expand-file-name "README.org" user-emacs-directory)
+		"Location of the user's literate config file.")
 #+end_src
 
 Next we'll set up the code to 'tangle' this configuration. In the
@@ -36,9 +36,9 @@ code blocks and 'weaving' them together into the code files that are
 actually run by emacs.
 
 #+begin_src emacs-lisp
-  (defun brady/tangle-config ()
-    (interactive)
-    (org-babel-tangle-file user-literate-config user-init-file))
+	(defun brady/tangle-config ()
+		(interactive)
+		(org-babel-tangle-file user-literate-config user-init-file))
 #+end_src
 
 Now we can call ~brady/tangle-config~ to update both init.el and
@@ -60,17 +60,17 @@ does assume that I will not edit my init file by hand, but we can
 always run ~brady/tangle-config~ manually if needed.
 
 #+begin_src emacs-lisp
-  (defun brady/rebuild-config-maybe ()
-    (interactive)
-    (when (file-newer-than-file-p user-literate-config user-init-file)
-      (brady/tangle-config)))
+	(defun brady/rebuild-config-maybe ()
+		(interactive)
+		(when (file-newer-than-file-p user-literate-config user-init-file)
+			(brady/tangle-config)))
 #+end_src
 
 Then all we need to do is add the above function to the
 ~kill-emacs-hook~ which runs before emacs is shut down.
 
 #+begin_src emacs-lisp
-  (add-hook 'kill-emacs-hook #'brady/rebuild-config-maybe)
+	(add-hook 'kill-emacs-hook #'brady/rebuild-config-maybe)
 #+end_src
 
 * Packaging
@@ -89,18 +89,18 @@ pulling the packages from a centralized package repoostory, it pulls
 the packages from the version controlled repositories directly.
 
 #+begin_src emacs-lisp
-  (defvar bootstrap-version)
-  (let ((bootstrap-file
-         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-        (bootstrap-version 5))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-          (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-           'silent 'inhibit-cookies)
-        (goto-char (point-max))
-        (eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage))
+	(defvar bootstrap-version)
+	(let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 5))
+		(unless (file-exists-p bootstrap-file)
+			(with-current-buffer
+		(url-retrieve-synchronously
+		 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+		 'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+		(load bootstrap-file nil 'nomessage))
 #+end_src
 
 Since straight.el replaces package.el, we need to include a snippet to
@@ -110,7 +110,7 @@ init.el (where most other things in this file are exported to) can be
 loaded.
 
 #+begin_src emacs-lisp :tangle early-init.el
-  (setq package-enable-at-startup 'nil)
+	(setq package-enable-at-startup 'nil)
 #+end_src
 
 ** Use Package
@@ -122,7 +122,7 @@ The first thing we need to do is install use-package. Fortunately,
 straight.el makes that very easy.
 
 #+begin_src emacs-lisp
-  (straight-use-package 'use-package)
+	(straight-use-package 'use-package)
 #+end_src
 
 * Emacs Defaults
@@ -143,9 +143,47 @@ changing the settings there prevents Emacs from flickering while
 loading.
 
 #+begin_src emacs-lisp :tangle early-init.el
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+	(menu-bar-mode -1)
+	(tool-bar-mode -1)
+	(scroll-bar-mode -1)
+#+end_src
+
+Update the internal border for solely aesthetic reasons.
+
+#+begin_src emacs-lisp :tangle early-init.el
+  (add-to-list 'default-frame-alist '(internal-border-width . 12))
+#+end_src
+
+** Fonts
+
+Update the font settings. First we'll define the default font to be
+used as well as the font size.
+
+#+begin_src emacs-lisp :tangle early-init.el
+  (add-to-list 'default-frame-alist '(font . "Source Code Pro-9"))
+#+end_src
+
+*** Emoji Support
+
+Use this snippet from Xah Lee (found [[http://ergoemacs.org/emacs/emacs_list_and_set_font.html][here]]) to enable Emoji support in
+Emacs.
+
+#+begin_src emacs-lisp
+  ;; set font for emoji
+  (set-fontset-font
+   t
+   '(#x1f300 . #x1fad0)
+   (cond
+    ((member "Noto Color Emoji" (font-family-list)) "Noto Color Emoji")
+    ((member "Noto Emoji" (font-family-list)) "Noto Emoji")
+    ((member "Segoe UI Emoji" (font-family-list)) "Segoe UI Emoji")
+    ((member "Symbola" (font-family-list)) "Symbola")
+    ((member "Apple Color Emoji" (font-family-list)) "Apple Color Emoji"))
+   ;; Apple Color Emoji should be before Symbola, but Richard Stallman disabled it.
+   ;; GNU Emacs Removes Color Emoji Support on the Mac
+   ;; http://ergoemacs.org/misc/emacs_macos_emoji.html
+   ;;
+   )
 #+end_src
 
 ** Autosaving and Backups
@@ -168,11 +206,11 @@ adding some additional functionality.
 
 Although I philosophically think that tabs are the correct indentation
 unit, spaces seem to be becoming the standard for most things (that I
-at least) work on so lets make them the standard in Emacs as well.
+at least work on) so lets make them the standard in Emacs as well.
 
 #+begin_src emacs-lisp
-  (setq indent-tabs-mode 'nil)
-  (setq-default tab-width 2)
+  (setq-default tab-width 2
+                indent-tabs-mode 'nil)
 #+end_src
 
 Another really nice function of most editors nowadays is the ability
@@ -181,18 +219,18 @@ of the file. We can make some quick tweaks to make that available in
 Emacs as well.
 
 #+begin_src emacs-lisp
-  (setq-default delete-trailing-lines 't
+	(setq-default delete-trailing-lines 't
 		require-final-newline 't)
 #+end_src
 
 #+begin_src emacs-lisp
-  (defun brady/cleanup-whitespace-in-buffer ()
-    "Cleanup whitespace in the current buffer"
-    (interactive)
-    (when (derived-mode-p 'prog-mode 'text-mode)
-      (delete-trailing-whitespace)))
+	(defun brady/cleanup-whitespace-in-buffer ()
+		"Cleanup whitespace in the current buffer"
+		(interactive)
+		(when (derived-mode-p 'prog-mode 'text-mode)
+			(delete-trailing-whitespace)))
 
-  (add-hook 'before-save-hook #'brady/cleanup-whitespace-in-buffer)
+	(add-hook 'before-save-hook #'brady/cleanup-whitespace-in-buffer)
 #+end_src
 
 ** Custom
@@ -203,12 +241,12 @@ my init.el file with variables that I didn't set. We'll use custom to
 set custom to use a different file.
 
 #+begin_src emacs-lisp
-  (use-package custom
-    :config
-    (when (file-exists-p custom-file)
-      (load-file custom-file))
-    :custom
-    (custom-file (expand-file-name "custom.el" user-emacs-directory)))
+	(use-package custom
+		:config
+		(when (file-exists-p custom-file)
+			(load-file custom-file))
+		:custom
+		(custom-file (expand-file-name "custom.el" user-emacs-directory)))
 #+end_src
 
 ** Bell
@@ -216,7 +254,7 @@ set custom to use a different file.
 Prevent all types of bell ringing on error.
 
 #+begin_src emacs-lisp
-  (setq ring-bell-function 'ignore)
+	(setq ring-bell-function 'ignore)
 #+end_src
 
 ** Scrolling
@@ -225,6 +263,22 @@ Tweaks to make Emacs scrolling work a little better.
 
 #+begin_src emacs-lisp
 	(setq scroll-conservatively 1000)
+#+end_src
+
+Update scroll margin to leave some buffer at the bottom of the page
+when scrolling.
+
+#+begin_src emacs-lisp
+  (setq scroll-margin 4)
+#+end_src
+
+Change the scroll speed with a mouse such that it's a little easier to
+control with a touchpad.
+
+#+begin_src emacs-lisp
+  (setq mouse-wheel-scroll-amount
+        '(2 ((shift) . 1) ((meta)) ((control) . text-scale))
+        mouse-wheel-progressive-speed 'nil)
 #+end_src
 
 ** Memory thresholds
@@ -249,6 +303,26 @@ buffer.
 				initial-scratch-message "")
 #+end_src
 
+** Util Functions
+
+This section contains some basic functions for handling the built in
+functionality for Emacs.
+
+#+begin_src emacs-lisp
+  (defun brady/set-readable ()
+    (interactive)
+    (if (car (window-margins))
+        (progn
+          (set-window-margins 'nil 0 0)
+          (visual-line-mode 0)
+          (text-scale-set 0))
+      (let* ((width (window-width))
+             (margin (floor (/ width 3.5))))
+        (set-window-margins 'nil margin margin)
+        (visual-line-mode 1)
+        (text-scale-set 1))))
+#+end_src
+
 ** Misc
 
 A section for other tweaks that aren't large enough for their own
@@ -264,6 +338,17 @@ current line is already indented.
 
 #+begin_src emacs-lisp
 	(setq tab-always-indent 'complete)
+#+end_src
+
+*** Yes/No Prompts
+
+Emacs has two yes/no prompts by default. It has one that requires you
+to type "yes" or "no" and one that only requires you to type "y" or
+"n". This sets the "yes/no" prompt to be the same function as the
+"y/n" prompt.
+
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
 * Packages
@@ -287,9 +372,9 @@ Modus vivendi is the dark mode version of the modus themes.
 Magit is a fantastic interface to all things git.
 
 #+begin_src emacs-lisp
-  (use-package magit
-    :straight t
-    :bind ("C-x g" . magit))
+	(use-package magit
+		:straight t
+		:bind ("C-x g" . magit))
 #+end_src
 
 ** Avy Jump
@@ -299,9 +384,9 @@ key presses. It's a really cool package that makes navigating the
 Emacs interface much easier.
 
 #+begin_src emacs-lisp
-  (use-package avy
-    :straight t
-    :bind ("M-SPC" . avy-goto-word-or-subword-1))
+	(use-package avy
+		:straight t
+		:bind ("M-SPC" . avy-goto-word-or-subword-1))
 #+end_src
 
 ** Eglot
@@ -310,11 +395,44 @@ Eglot is a language server client that tries to integrate with the
 built-in functionality of Emacs. lsp-mode generally has slightly more
 features, but I've been happy with Eglot.
 
+First, I'll set up some functions to run on various hooks. The first
+hook sets up auto-formatting for buffers that are managed by Eglot.
+
 #+begin_src emacs-lisp
-	(use-package eglot
-		:straight t
-		:config
-		(setq eglot-confirm-server-initiated-edits 'nil))
+  (defun brady/eglot--format-pre-save ()
+    "Function to run auto-formatting before save"
+    (ignore-errors
+      (eglot-code-action-organize-imports (point-min) (point-max)))
+    (eglot-format-buffer))
+
+  (defun brady/eglot--setup-auto-format ()
+    "Setup auto format for buffers managed by eglot"
+    (if (eglot-managed-p)
+        (add-hook 'before-save-hook #'brady/eglot--format-pre-save 10 't)
+      (remove-hook 'before-save-hook #'brady/eglot--format-pre-save 't)))
+#+end_src
+
+Now we can configure the package itself.
+
+#+begin_src emacs-lisp
+  (use-package eglot
+      :straight t
+      :config
+      (setq eglot-confirm-server-initiated-edits 'nil)
+      (add-hook 'eglot-managed-mode-hook #'brady/eglot--setup-auto-format))
+#+end_src
+
+** Company
+
+I mostly like the default Emacs completion that requires explicit
+action to see the completions; however, I've been evaluating company
+mode.
+
+#+begin_src emacs-lisp
+  (use-package company
+    :straight t
+    :hook (emacs-startup . global-company-mode)
+    :config (setq company-backends '(company-capf company-files)))
 #+end_src
 
 ** Highlight Line
@@ -323,8 +441,8 @@ hl-line is a package that is built in to Emacs the simply highlights
 the line that the cursor is currently on.
 
 #+begin_src emacs-lisp
-  (use-package hl-line
-    :init (global-hl-line-mode 1))
+	(use-package hl-line
+		:init (global-hl-line-mode 1))
 #+end_src
 
 ** Display Line Numbers
@@ -334,8 +452,8 @@ displays the line numbers to the side of the buffer. I prefer to only
 have it enabled for programming buffers.
 
 #+begin_src emacs-lisp
-  (use-package display-line-numbers
-    :hook (prog-mode . display-line-numbers-mode))
+	(use-package display-line-numbers
+		:hook (prog-mode . display-line-numbers-mode))
 #+end_src
 
 ** VTerm
@@ -346,8 +464,21 @@ behave well with any of the built-in shells and you need a full
 shell. VTerm is that for Emacs.
 
 #+begin_src emacs-lisp
-	(use-package vterm
-		:straight t)
+  (use-package vterm
+    :if nil
+    :straight t)
+#+end_src
+
+** Tree Sitter
+
+Better syntax highlighting with tree sitter grammars.
+
+#+begin_src emacs-lisp
+  (use-package tree-sitter
+    :straight t)
+
+  (use-package tree-sitter-langs
+    :straight t)
 #+end_src
 
 ** MPV.el
@@ -358,8 +489,84 @@ integration. This package makes it possible to interact with MPV
 through Emacs.
 
 #+begin_src emacs-lisp
-	(use-package mpv
-		:straight t)
+  (use-package mpv
+    :straight t)
+#+end_src
+
+Add a function to play a playlist with the option to select a start
+index. Eventually, I'd like to set up some persistence for
+this. (Maybe integrating with MPPD.)
+
+#+begin_src emacs-lisp
+  (defun mpv-play-playlist (path index)
+    "Play a playlist with an optional offset"
+    (interactive "sPath: \nnIndex: ")
+    (let ((playlist-start (if index (number-to-string index) "0")))
+      (mpv-start path (concat "--playlist-start=" playlist-start))))
+#+end_src
+
+** Evil Mode
+
+Evil mode brings vim keybindings to Emacs. I'm not sure whether I want
+that or not, but I'm quite comfortable with vim keybindings, so I'm
+giving it a shot for now.
+
+#+begin_src emacs-lisp
+  (use-package evil
+    :if nil
+    :straight t
+    :config
+    (evil-mode 1))
+#+end_src
+
+** Expand Region
+
+Expand region is a wonderful mod that allows you to progressively
+expand the selected region.
+
+#+begin_src emacs-lisp
+  (use-package expand-region
+    :straight t
+    :bind (("C-=" . er/expand-region)))
+#+end_src
+
+** TRAMP
+
+TRAMP is a built-in Emacs package which allows (T)ransparent (R)emote
+(A)ccess to other servers and computers through my local Emacs
+instance.
+
+#+begin_src emacs-lisp
+  (use-package tramp
+    :config
+    (setq tramp-copy-size-limit 'nil))
+#+end_src
+
+** Ivy
+
+Ivy is a completion package for Emacs. Originally, it was developed as
+a lighter-weight alternative to HELM, but now it's quite
+featureful. I'm evaluating it compared to the default behavior.
+
+#+begin_src emacs-lisp
+  (use-package ivy
+    :straight t
+    :hook (emacs-startup . ivy-mode)
+    :config
+    (setq ivy-use-virtual-buffers 't
+          enable-recursive-minibuffers 't))
+#+end_src
+
+** Swiper
+
+Swiper is a package which allows for more pleasant and featureful
+searching. Since it comes as a requirement for Ivy, I enable it as
+well.
+
+#+begin_src emacs-lisp
+  (use-package swiper
+    :straight t
+    :bind (("C-s" . swiper)))
 #+end_src
 
 * Languages
@@ -370,8 +577,15 @@ that I use in Emacs.
 ** Python
 
 I am mostly happy with the default python support so this section is
-only here for completeness. I have no specific configuration for
-python yet.
+only here for completeness. I simply enable the tree sitter
+highlighting for python.
+
+#+begin_src emacs-lisp
+  (use-package python
+    :straight t
+    :config
+    (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
+#+end_src
 
 ** Javascript/Typescript
 
@@ -382,14 +596,14 @@ typescript language server. Instead, I simply use eglot and the
 typescript-language-server which I find to be slightly more standard.
 
 #+begin_src emacs-lisp
-  (use-package typescript-mode
-    :straight t
-    :config
-    (setq-default typescript-indent-level 2))
+	(use-package typescript-mode
+		:straight t
+		:config
+		(setq-default typescript-indent-level 2))
 
-  (use-package js
-    :config
-    (setq-default js-indent-level 2))
+	(use-package js
+		:config
+		(setq-default js-indent-level 2))
 #+end_src
 
 ** HTML/CSS
@@ -399,9 +613,77 @@ case I determine I have a need for it in the future. However, I do
 want to customize some CSS to make indent levels consistent.
 
 #+begin_src emacs-lisp
-  (use-package css-mode
+	(use-package css-mode
+		:config
+		(setq-default css-indent-offset 2))
+#+end_src
+
+** Markdown Mode
+
+Although I use org mode for most of my personal configuration, I use
+markdown often for collaborative projects.
+
+#+begin_src emacs-lisp
+  (use-package markdown-mode
+    :straight t)
+#+end_src
+
+** Rust Mode
+
+Some settings for the rust programming language.
+
+#+begin_src emacs-lisp
+  (use-package rust-mode
+    :straight t
     :config
-    (setq-default css-indent-offset 2))
+    (add-hook 'rust-mode-hook #'tree-sitter-hl-mode)
+
+    (defun brady/rust-set-indentation ()
+      "Set tab width for rust mode buffers"
+      (setq tab-width 4))
+    (add-hook 'rust-mode-hook #'brady/rust-set-indentation))
+#+end_src
+
+** JSON Mode
+
+JSON mode provides better support for actual JSON documents than the
+default js-mode and allows for tree-sitter highlighting to be applied.
+
+#+begin_src emacs-lisp
+  (use-package json-mode
+    :straight t
+    :config
+    (add-hook 'json-mode-hook #'tree-sitter-hl-mode))
+#+end_src
+
+** YAML Mode
+
+YAML is commonly used for configuration files, so it's important to
+have a mode for it.
+
+#+begin_src emacs-lisp
+  (use-package yaml-mode
+    :straight t)
+#+end_src
+
+* Integrations
+
+This section contains integrations with my environment and/or other
+external programs.
+
+** SSH
+
+I use ssh heavily for work, including using dynamic port forwarding to
+access the domain network, this is a helper function to start that
+process in the background.
+
+#+begin_src emacs-lisp
+  (defun brady/ssh-dynamic-forward (host port)
+    "Start SSH dynamic port forwarding on the given port"
+    (interactive "sHost: \nnPort: ")
+    (start-process "SSH Dynamic Forward"
+                   'nil
+                   "ssh" "-NfD" (number-to-string port) host))
 #+end_src
 
 * Keybindings
@@ -423,14 +705,16 @@ Org mode is a life manager centered around a markup language that this
 file is written in!
 
 #+begin_src emacs-lisp
-	(use-package org
-		:straight t
-		:config
-		(add-to-list 'org-structure-template-alist
-								 '("el" . "src emacs-lisp"))
-		:custom
-		(org-adapt-indentation 'nil "Don't indent text to match headings"))
+  (use-package org
+    :straight t
+    :init (setq initial-major-mode 'org-mode)
+    :config
+    (add-to-list 'org-structure-template-alist
+                 '("el" . "src emacs-lisp"))
+    (add-hook 'org-mode-hook #'auto-fill-mode)
+    :custom
+    (org-adapt-indentation 'nil "Don't indent text to match headings"))
 
-	(use-package org-tempo
-		:after org)
+  (use-package org-tempo
+    :after org)
 #+end_src
