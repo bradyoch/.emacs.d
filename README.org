@@ -160,7 +160,7 @@ Update the font settings. First we'll define the default font to be
 used as well as the font size.
 
 #+begin_src emacs-lisp :tangle early-init.el
-  (add-to-list 'default-frame-alist '(font . "Source Code Pro-9"))
+  (add-to-list 'default-frame-alist '(font . "Source Code Pro-10"))
 #+end_src
 
 *** Emoji Support
@@ -337,7 +337,8 @@ defaults for now. The only tweak I've made so far is to set
 current line is already indented.
 
 #+begin_src emacs-lisp
-	(setq tab-always-indent 'complete)
+  (setq tab-always-indent 'complete
+        completion-styles '(basic initials partial-completion substring))
 #+end_src
 
 *** Yes/No Prompts
@@ -429,10 +430,10 @@ action to see the completions; however, I've been evaluating company
 mode.
 
 #+begin_src emacs-lisp
-  (use-package company
-    :straight t
-    :hook (emacs-startup . global-company-mode)
-    :config (setq company-backends '(company-capf company-files)))
+  ;; (use-package company
+  ;;   :straight t
+  ;;   :hook (emacs-startup . global-company-mode)
+  ;;   :config (setq company-backends '(company-capf company-files)))
 #+end_src
 
 ** Highlight Line
@@ -474,11 +475,11 @@ shell. VTerm is that for Emacs.
 Better syntax highlighting with tree sitter grammars.
 
 #+begin_src emacs-lisp
-  (use-package tree-sitter
-    :straight t)
+  ;; (use-package tree-sitter
+  ;;   :straight t)
 
-  (use-package tree-sitter-langs
-    :straight t)
+  ;; (use-package tree-sitter-langs
+  ;;   :straight t)
 #+end_src
 
 ** MPV.el
@@ -503,6 +504,13 @@ this. (Maybe integrating with MPPD.)
     (interactive "sPath: \nnIndex: ")
     (let ((playlist-start (if index (number-to-string index) "0")))
       (mpv-start path (concat "--playlist-start=" playlist-start))))
+
+  (defun mpv-playlist-at-point ()
+    "Play the playlist described by the current org node"
+    (interactive)
+    (let ((url (car (org-property-values "url")))
+          (index (string-to-number (car (org-property-values "current-index")))))
+      (mpv-play-playlist url index)))
 #+end_src
 
 ** Evil Mode
@@ -512,11 +520,10 @@ that or not, but I'm quite comfortable with vim keybindings, so I'm
 giving it a shot for now.
 
 #+begin_src emacs-lisp
-  (use-package evil
-    :if nil
-    :straight t
-    :config
-    (evil-mode 1))
+  ;; (use-package evil
+  ;;   :straight t
+  ;;   :config
+  ;;   (evil-mode 1))
 #+end_src
 
 ** Expand Region
@@ -549,12 +556,12 @@ a lighter-weight alternative to HELM, but now it's quite
 featureful. I'm evaluating it compared to the default behavior.
 
 #+begin_src emacs-lisp
-  (use-package ivy
-    :straight t
-    :hook (emacs-startup . ivy-mode)
-    :config
-    (setq ivy-use-virtual-buffers 't
-          enable-recursive-minibuffers 't))
+  ;; (use-package ivy
+  ;;   :straight t
+  ;;   :hook (emacs-startup . ivy-mode)
+  ;;   :config
+  ;;   (setq ivy-use-virtual-buffers 't
+  ;;         enable-recursive-minibuffers 't))
 #+end_src
 
 ** Swiper
@@ -564,9 +571,9 @@ searching. Since it comes as a requirement for Ivy, I enable it as
 well.
 
 #+begin_src emacs-lisp
-  (use-package swiper
-    :straight t
-    :bind (("C-s" . swiper)))
+  ;; (use-package swiper
+  ;;   :straight t
+  ;;   :bind (("C-s" . swiper)))
 #+end_src
 
 * Languages
@@ -582,9 +589,9 @@ highlighting for python.
 
 #+begin_src emacs-lisp
   (use-package python
-    :straight t
-    :config
-    (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
+    :straight t)
+    ;; :config
+    ;; (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
 #+end_src
 
 ** Javascript/Typescript
@@ -636,7 +643,7 @@ Some settings for the rust programming language.
   (use-package rust-mode
     :straight t
     :config
-    (add-hook 'rust-mode-hook #'tree-sitter-hl-mode)
+    ;; (add-hook 'rust-mode-hook #'tree-sitter-hl-mode)
 
     (defun brady/rust-set-indentation ()
       "Set tab width for rust mode buffers"
@@ -651,9 +658,9 @@ default js-mode and allows for tree-sitter highlighting to be applied.
 
 #+begin_src emacs-lisp
   (use-package json-mode
-    :straight t
-    :config
-    (add-hook 'json-mode-hook #'tree-sitter-hl-mode))
+    :straight t)
+    ;; :config
+    ;; (add-hook 'json-mode-hook #'tree-sitter-hl-mode))
 #+end_src
 
 ** YAML Mode
@@ -707,7 +714,6 @@ file is written in!
 #+begin_src emacs-lisp
   (use-package org
     :straight t
-    :init (setq initial-major-mode 'org-mode)
     :config
     (add-to-list 'org-structure-template-alist
                  '("el" . "src emacs-lisp"))
