@@ -332,12 +332,10 @@ discussion.
 
 Emacs has pretty good completion built-in. I have used company in the
 past for a more modern completion framework, but I'm trying the
-defaults for now. The only tweak I've made so far is to set
-~tab-always-indent~ to ~'complete~ which triggers completion if the
-current line is already indented.
+defaults for now.
 
 #+begin_src emacs-lisp
-  (setq tab-always-indent 'complete
+  (setq tab-always-indent t
         completion-styles '(basic initials partial-completion substring))
 #+end_src
 
@@ -430,10 +428,10 @@ action to see the completions; however, I've been evaluating company
 mode.
 
 #+begin_src emacs-lisp
-  ;; (use-package company
-  ;;   :straight t
-  ;;   :hook (emacs-startup . global-company-mode)
-  ;;   :config (setq company-backends '(company-capf company-files)))
+  (use-package company
+    :straight t
+    :hook (emacs-startup . global-company-mode)
+    :config (setq company-backends '(company-capf company-files)))
 #+end_src
 
 ** Highlight Line
@@ -648,7 +646,17 @@ Some settings for the rust programming language.
     (defun brady/rust-set-indentation ()
       "Set tab width for rust mode buffers"
       (setq tab-width 4))
-    (add-hook 'rust-mode-hook #'brady/rust-set-indentation))
+    (add-hook 'rust-mode-hook #'brady/rust-set-indentation)
+    (add-hook 'rust-mode-hook #'rust-enable-format-on-save))
+#+end_src
+
+** Go Mode
+
+Some settings for the go programming language.
+
+#+begin_src emacs-lisp
+  (use-package go-mode
+    :straight t)
 #+end_src
 
 ** JSON Mode
