@@ -28,6 +28,7 @@
 (setq require-final-newline t)
 
 (fringe-mode '(8 . 0))
+(set-face-attribute 'fringe nil :background nil)
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'text-mode-hook #'display-line-numbers-mode)
